@@ -1,23 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import Login from "./Components/Login/Login";
+import Home from "./Components/Home/Home";
+import MainHeader from "./Components/MainHeader/MainHeader";
+import AuthContext from "./Components/Context/auth-context";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const LoggedInInfo = localStorage.getItem("loginState");
+    if (LoggedInInfo === "LOGGED_IN") {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const loginHandler = (email, password) => {
+    localStorage.setItem("loginState", "LOGGED_IN");
+    setIsLoggedIn(true);
+  };
+
+  const logoutHandler = () => {
+    localStorage.removeItem("loginState");
+    setIsLoggedIn(false);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <AuthContext.Provider
+        value={{
+          userLoggedIn: isLoggedIn,
+          onLogout: logoutHandler,
+          onLogin: loginHandler,
+        }}
+      >
+        <MainHeader />
+        <main>{!isLoggedIn ? <Login /> : <Home />}</main>
+      </AuthContext.Provider>
     </div>
   );
 }
